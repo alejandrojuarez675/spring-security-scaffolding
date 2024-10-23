@@ -31,13 +31,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(http -> {
                     // Public endpoints
-                    http.requestMatchers(HttpMethod.GET, "/auth/get").permitAll();
                     http.requestMatchers(HttpMethod.GET, "/ping").permitAll();
 
                     // Private endpoints
-                    http.requestMatchers(HttpMethod.POST, "/auth/post").hasAnyRole("ADMIN", "BUYER");
-                    http.requestMatchers(HttpMethod.PATCH, "/auth/patch").hasAnyAuthority("SUPER_ADMIN");
-
                     http.requestMatchers(HttpMethod.GET, "/hello").hasAnyRole("ADMIN", "BUYER");
 
                     // Another endpoints
