@@ -1,6 +1,8 @@
 package com.alejua39.scaffoldings.infrastructure.auth.configs;
 
+import com.alejua39.scaffoldings.infrastructure.auth.configs.filters.JwtTokenValidator;
 import com.alejua39.scaffoldings.infrastructure.auth.service.UserDetailServiceImpl;
+import com.alejua39.scaffoldings.infrastructure.auth.utils.JwtUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -17,11 +19,18 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+
+    private final JwtUtils jwtUtils;
+
+    public SecurityConfig(JwtUtils jwtUtils) {
+        this.jwtUtils = jwtUtils;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -32,6 +41,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(http -> {
                     // Public endpoints
                     http.requestMatchers(HttpMethod.GET, "/ping").permitAll();
+                    http.requestMatchers(HttpMethod.POST, "/auth/**").permitAll();
 
                     // Private endpoints
                     http.requestMatchers(HttpMethod.GET, "/hello").hasAnyRole("ADMIN", "BUYER");
@@ -39,6 +49,7 @@ public class SecurityConfig {
                     // Another endpoints
                     http.anyRequest().denyAll();
                 })
+                .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class)
                 .build();
     }
 

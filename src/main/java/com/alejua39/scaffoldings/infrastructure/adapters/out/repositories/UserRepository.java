@@ -5,4 +5,6 @@ import java.util.Optional;
 
 public interface UserRepository {
     Optional<UserEntity> findUserEntityByUsername(String username);
+
+    UserEntity save(UserEntity userEntity);
 }

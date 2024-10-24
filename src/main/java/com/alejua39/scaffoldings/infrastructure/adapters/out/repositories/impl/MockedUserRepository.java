@@ -1,28 +1,25 @@
-package com.alejua39.scaffoldings.infrastructure.adapters.out.repositories;
+package com.alejua39.scaffoldings.infrastructure.adapters.out.repositories.impl;
 
 import com.alejua39.scaffoldings.infrastructure.adapters.out.entities.auth.RoleEntity;
 import com.alejua39.scaffoldings.infrastructure.adapters.out.entities.auth.RoleEnum;
 import com.alejua39.scaffoldings.infrastructure.adapters.out.entities.auth.UserEntity;
+import com.alejua39.scaffoldings.infrastructure.adapters.out.repositories.UserRepository;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class MockedUserRepository implements UserRepository {
 
-    private final PasswordEncoder passwordEncoder;
+    private static final Set<UserEntity> mockedUsers = new HashSet<>();
 
-    public MockedUserRepository(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
-
-    private Set<UserEntity> getMockedUsers() {
-        return Set.of(
-                UserEntity.builder()
+    public MockedUserRepository() {
+        mockedUsers.add(UserEntity.builder()
                         .id(1L)
                         .username("superadmin")
-                        .password(this.passwordEncoder.encode("superadmin"))
+                        .password(new BCryptPasswordEncoder().encode("superadmin"))
                         .roles(Set.of(
                                 RoleEntity.builder()
                                         .roleEnum(RoleEnum.SUPER_ADMIN)
@@ -40,12 +37,12 @@ public class MockedUserRepository implements UserRepository {
                         .accountNoExpired(true)
                         .accountNoLocked(true)
                         .credentialNoExpired(true)
-                        .build(),
+                        .build());
 
-                UserEntity.builder()
+        mockedUsers.add(UserEntity.builder()
                         .id(1L)
                         .username("admin")
-                        .password(this.passwordEncoder.encode("admin"))
+                        .password(new BCryptPasswordEncoder().encode("admin"))
                         .roles(Set.of(RoleEntity.builder()
                                 .roleEnum(RoleEnum.ADMIN)
                                 .permissionList(Set.of())
@@ -54,12 +51,12 @@ public class MockedUserRepository implements UserRepository {
                         .accountNoExpired(true)
                         .accountNoLocked(true)
                         .credentialNoExpired(true)
-                        .build(),
+                        .build());
 
-                UserEntity.builder()
+        mockedUsers.add(UserEntity.builder()
                         .id(1L)
                         .username("buyer")
-                        .password(this.passwordEncoder.encode("buyer"))
+                        .password(new BCryptPasswordEncoder().encode("buyer"))
                         .roles(Set.of(RoleEntity.builder()
                                 .roleEnum(RoleEnum.BUYER)
                                 .permissionList(Set.of())
@@ -68,12 +65,17 @@ public class MockedUserRepository implements UserRepository {
                         .accountNoExpired(true)
                         .accountNoLocked(true)
                         .credentialNoExpired(true)
-                        .build()
-        );
+                        .build());
     }
 
     @Override
     public Optional<UserEntity> findUserEntityByUsername(String username) {
-        return getMockedUsers().stream().filter(user -> user.getUsername().equals(username)).findFirst();
+        return MockedUserRepository.mockedUsers.stream().filter(user -> user.getUsername().equals(username)).findFirst();
+    }
+
+    @Override
+    public UserEntity save(UserEntity userEntity) {
+        mockedUsers.add(userEntity);
+        return userEntity;
     }
 }
