@@ -36,7 +36,7 @@ You have to call this endpoint with a body like it:
 
 ### Examples endpoints:
 - /ping: public endpoint
-- /hello: private endpoint
+- /hello: private endpoint only accessible for users that have role ADMIN or BUYER.
 
 The configuration of new endpoints is on `com/alejua39/scaffoldings/infrastructure/auth/configs/SecurityConfig.java` file.
 
